@@ -174,6 +174,16 @@ def test_metodo_no_permitido_dice_cuales_si():
     assert r.headers["allow"] == "GET"
 
 
+def test_head_como_get_sin_cuerpo():
+    get = client.get("/v1/standings")
+    head = client.head("/v1/standings")
+    assert head.status_code == 200
+    assert head.content == b""
+    assert head.headers["etag"] == get.headers["etag"]
+    assert head.headers["content-length"] == get.headers["content-length"]
+    assert client.head("/v1/teams/nope").status_code == 404
+
+
 def test_cuerpo_que_no_es_json():
     r = client.post(
         "/v1/standings/simulate", content=b"{no es json", headers={"Content-Type": "application/json"}

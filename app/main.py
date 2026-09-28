@@ -153,6 +153,31 @@ async def _unexpected(request: Request, exc: Exception) -> JSONResponse:
 # ---------------------------------------------------------------- cabeceras
 
 
+class HeadAsGet:
+    """RFC 9110: todo lo que acepta GET acepta HEAD, con las mismas cabeceras y sin cuerpo.
+
+    FastAPI no lo hace solo (respondía 405). Se atiende como GET y se descarta
+    el cuerpo al enviarlo, así Content-Length y ETag son los del GET.
+    """
+
+    def __init__(self, app) -> None:
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http" or scope["method"] != "HEAD":
+            return await self.app(scope, receive, send)
+
+        async def send_without_body(message):
+            if message["type"] == "http.response.body":
+                message = {**message, "body": b""}
+            await send(message)
+
+        await self.app({**scope, "method": "GET"}, receive, send_without_body)
+
+
+app.add_middleware(HeadAsGet)
+
+
 @app.middleware("http")
 async def request_id(request: Request, call_next):
     incoming = request.headers.get("x-request-id", "")

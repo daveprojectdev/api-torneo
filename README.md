@@ -4,7 +4,7 @@ API REST pública con los datos reales de la liga del [Torneo Volleyball 2026](h
 7 equipos, 21 partidos y 63 sets. Calcula la tabla de posiciones con puntos FIVB y explica cada desempate.
 También tiene un endpoint para simular resultados hipotéticos.
 
-Hecha con **Python 3.14 + FastAPI + Pydantic**. **77 pruebas** y **99 % de cobertura**.
+Hecha con **Python 3.14 + FastAPI + Pydantic**. **78 pruebas** y **99 % de cobertura**.
 
 ## Probarla
 
@@ -78,6 +78,9 @@ tests/
   3. Los `500` perdían el `X-Request-ID`, porque los atiende un middleware externo.
   4. `include_season: 0` se aceptaba como `false`, y el contrato dice `boolean`.
   5. Un cuerpo que no era JSON devolvía `404` en vez de `400`.
+
+  Un sexto salió al probar a mano el despliegue: `HEAD` respondía `405` (RFC 9110 obliga a aceptarlo donde se
+  acepta `GET`). Schemathesis no lo cubre porque `HEAD` no figura en el OpenAPI. Ahora tiene su prueba.
 
   Solo en la simulación se desactiva el chequeo de "datos válidos aceptados". JSON Schema no puede expresar
   "a 25 con 2 de ventaja", así que un 0-0 cumple el esquema y aun así debe rechazarse.
