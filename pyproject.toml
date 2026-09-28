@@ -1,5 +1,24 @@
-# Solo configuración de herramientas. Las dependencias viven en requirements.txt:
-# si aquí hubiera una tabla [project], Vercel la usaría y no instalaría FastAPI.
+[project]
+name = "api-torneo"
+version = "1.0.0"
+description = "API pública del Torneo Volleyball 2026"
+requires-python = ">=3.12"
+# Única lista de dependencias: la leen Vercel (con uv), el CI y el entorno local.
+dependencies = [
+    "fastapi==0.141.1",
+    "pydantic==2.13.5",
+]
+
+[dependency-groups]
+dev = [
+    "uvicorn[standard]==0.54.0",
+    "pytest==9.1.1",
+    "pytest-cov==7.1.0",
+    "hypothesis==6.168.2",
+    "schemathesis==4.28.0",
+    "httpx2==2.13.1",
+    "ruff==0.16.9",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

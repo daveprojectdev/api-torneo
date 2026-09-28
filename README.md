@@ -82,16 +82,17 @@ tests/
   Solo en la simulación se desactiva el chequeo de "datos válidos aceptados". JSON Schema no puede expresar
   "a 25 con 2 de ventaja", así que un 0-0 cumple el esquema y aun así debe rechazarse.
 
-El CI (GitHub Actions) corre el linter, el formato y toda la batería en cada push. También publica la cobertura
+El CI (GitHub Actions) corre el linter, el formato y toda la batería en cada push, con Python 3.12 (el de producción) y 3.14. También publica la cobertura
 y el informe JUnit como artefacto. Si la cobertura baja del 95 %, falla.
 
 ## Ejecutar en local
 
+Las dependencias están en `pyproject.toml`, fijadas en `uv.lock`. Hace falta [uv](https://docs.astral.sh/uv/).
+
 ```bash
-python -m venv .venv
-.venv/Scripts/pip install -r requirements-dev.txt   # en Linux/macOS: .venv/bin/pip
-.venv/Scripts/uvicorn app.main:app --reload          # http://127.0.0.1:8000/docs
-.venv/Scripts/pytest --cov=app
+uv sync
+uv run uvicorn app.main:app --reload   # http://127.0.0.1:8000/docs
+uv run pytest --cov=app
 ```
 
 ## Los datos

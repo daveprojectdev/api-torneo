@@ -8,23 +8,25 @@ on:
 jobs:
   pruebas:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # 3.12 es la que usa Vercel en producción; 3.14, la del desarrollo local.
+        python: ["3.12", "3.14"]
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
+      - uses: astral-sh/setup-uv@v10
         with:
-          python-version: "3.14"
-          cache: pip
-          cache-dependency-path: requirements-dev.txt
-      - run: pip install -r requirements-dev.txt
+          python-version: ${{ matrix.python }}
+      - run: uv sync --locked
       - name: Estilo
         run: |
-          ruff check .
-          ruff format --check .
+          uv run ruff check .
+          uv run ruff format --check .
       - name: Pruebas (unitarias, propiedades, API, contrato y oráculo)
-        run: pytest --cov=app --cov-report=term --cov-report=html:reporte/cobertura --junitxml=reporte/junit.xml
+        run: uv run pytest --cov=app --cov-report=term --cov-report=html:reporte/cobertura --junitxml=reporte/junit.xml
       - name: Informe
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: informe-de-pruebas
+          name: informe-de-pruebas-py${{ matrix.python }}
           path: reporte/
