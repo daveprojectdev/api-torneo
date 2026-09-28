@@ -10,14 +10,15 @@ Hecha con **Python 3.14 + FastAPI + Pydantic**. **78 pruebas** y **99 % de cober
 
 | | |
 |---|---|
-| Documentación interactiva | `/docs` (Swagger UI, se puede llamar a cada ruta desde el navegador) |
-| Referencia | `/redoc` |
-| Contrato OpenAPI 3.1 | `/openapi.json` |
+| Documentación interactiva | [api.davidameth.dev/docs](https://api.davidameth.dev/docs), para llamar a cada ruta desde el navegador |
+| Swagger UI | [/swagger](https://api.davidameth.dev/swagger) |
+| Referencia | [/redoc](https://api.davidameth.dev/redoc) |
+| Contrato OpenAPI 3.1 | [/openapi.json](https://api.davidameth.dev/openapi.json) |
 
 ```bash
-curl https://<dominio>/v1/standings
-curl "https://<dominio>/v1/matches?team=shalom-2&limit=3"
-curl -X POST https://<dominio>/v1/standings/simulate \
+curl https://api.davidameth.dev/v1/standings
+curl "https://api.davidameth.dev/v1/matches?team=shalom-2&limit=3"
+curl -X POST https://api.davidameth.dev/v1/standings/simulate \
   -H "Content-Type: application/json" \
   -d '{"results":[{"home":"shalom-1","away":"generacion-de-fe","sets":[{"home":25,"away":20},{"home":26,"away":24},{"home":25,"away":18}]}]}'
 ```
