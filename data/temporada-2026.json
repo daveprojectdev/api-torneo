@@ -1,0 +1,553 @@
+{
+  "tournament": {
+    "id": "torneo-volleyball-2026",
+    "name": "Torneo Volleyball 2026",
+    "format": "Liga todos contra todos, 3 sets fijos por partido",
+    "source": "Volcado de la base de producción del torneo"
+  },
+  "teams": [
+    {
+      "id": "aguilas-carmesi",
+      "name": "Águilas Carmesí",
+      "seed": 1
+    },
+    {
+      "id": "centinelas-de-luz",
+      "name": "Centinelas de Luz",
+      "seed": 2
+    },
+    {
+      "id": "generacion-de-fe",
+      "name": "Generación de Fe",
+      "seed": 3
+    },
+    {
+      "id": "little-giant",
+      "name": "Little Giant",
+      "seed": 4
+    },
+    {
+      "id": "roca-eterna",
+      "name": "Roca Eterna",
+      "seed": 5
+    },
+    {
+      "id": "shalom-1",
+      "name": "Shalom 1",
+      "seed": 6
+    },
+    {
+      "id": "shalom-2",
+      "name": "Shalom 2",
+      "seed": 7
+    }
+  ],
+  "jornadas": [
+    {
+      "number": 1,
+      "name": "Jornada 1",
+      "date": "2026-06-13",
+      "city": "Chame"
+    },
+    {
+      "number": 2,
+      "name": "Jornada 2",
+      "date": "2026-06-27",
+      "city": "Río Hato"
+    },
+    {
+      "number": 3,
+      "name": "Jornada 3",
+      "date": "2026-07-11",
+      "city": "San Carlos"
+    },
+    {
+      "number": 4,
+      "name": "Jornada 4",
+      "date": "2026-07-25",
+      "city": "Antón"
+    },
+    {
+      "number": 5,
+      "name": "Jornada 5",
+      "date": "2026-08-08",
+      "city": "Río Hato"
+    },
+    {
+      "number": 6,
+      "name": "Jornada 6",
+      "date": "2026-08-22",
+      "city": "Chame"
+    },
+    {
+      "number": 7,
+      "name": "Jornada 7",
+      "date": "2026-09-05",
+      "city": "Antón"
+    }
+  ],
+  "matches": [
+    {
+      "id": "j1-p1",
+      "jornada": 1,
+      "position": 1,
+      "home": "generacion-de-fe",
+      "away": "aguilas-carmesi",
+      "status": "completed",
+      "sets": [
+        [
+          24,
+          26
+        ],
+        [
+          25,
+          16
+        ],
+        [
+          25,
+          14
+        ]
+      ]
+    },
+    {
+      "id": "j1-p2",
+      "jornada": 1,
+      "position": 2,
+      "home": "roca-eterna",
+      "away": "centinelas-de-luz",
+      "status": "completed",
+      "sets": [
+        [
+          17,
+          25
+        ],
+        [
+          15,
+          25
+        ],
+        [
+          25,
+          12
+        ]
+      ]
+    },
+    {
+      "id": "j1-p3",
+      "jornada": 1,
+      "position": 3,
+      "home": "little-giant",
+      "away": "shalom-2",
+      "status": "completed",
+      "sets": [
+        [
+          19,
+          25
+        ],
+        [
+          25,
+          12
+        ],
+        [
+          25,
+          17
+        ]
+      ]
+    },
+    {
+      "id": "j2-p1",
+      "jornada": 2,
+      "position": 1,
+      "home": "little-giant",
+      "away": "roca-eterna",
+      "status": "completed",
+      "sets": [
+        [
+          19,
+          25
+        ],
+        [
+          25,
+          13
+        ],
+        [
+          25,
+          12
+        ]
+      ]
+    },
+    {
+      "id": "j2-p2",
+      "jornada": 2,
+      "position": 2,
+      "home": "shalom-1",
+      "away": "aguilas-carmesi",
+      "status": "completed",
+      "sets": [
+        [
+          9,
+          25
+        ],
+        [
+          26,
+          28
+        ],
+        [
+          25,
+          22
+        ]
+      ]
+    },
+    {
+      "id": "j2-p3",
+      "jornada": 2,
+      "position": 3,
+      "home": "shalom-2",
+      "away": "centinelas-de-luz",
+      "status": "completed",
+      "sets": [
+        [
+          17,
+          25
+        ],
+        [
+          3,
+          25
+        ],
+        [
+          17,
+          25
+        ]
+      ]
+    },
+    {
+      "id": "j3-p1",
+      "jornada": 3,
+      "position": 1,
+      "home": "generacion-de-fe",
+      "away": "roca-eterna",
+      "status": "completed",
+      "sets": [
+        [
+          25,
+          9
+        ],
+        [
+          18,
+          25
+        ],
+        [
+          25,
+          14
+        ]
+      ]
+    },
+    {
+      "id": "j3-p2",
+      "jornada": 3,
+      "position": 2,
+      "home": "little-giant",
+      "away": "centinelas-de-luz",
+      "status": "completed",
+      "sets": [
+        [
+          25,
+          18
+        ],
+        [
+          25,
+          13
+        ],
+        [
+          18,
+          25
+        ]
+      ]
+    },
+    {
+      "id": "j3-p3",
+      "jornada": 3,
+      "position": 3,
+      "home": "shalom-1",
+      "away": "shalom-2",
+      "status": "completed",
+      "sets": [
+        [
+          25,
+          22
+        ],
+        [
+          24,
+          26
+        ],
+        [
+          23,
+          25
+        ]
+      ]
+    },
+    {
+      "id": "j4-p1",
+      "jornada": 4,
+      "position": 1,
+      "home": "shalom-1",
+      "away": "centinelas-de-luz",
+      "status": "completed",
+      "sets": [
+        [
+          14,
+          25
+        ],
+        [
+          25,
+          23
+        ],
+        [
+          25,
+          23
+        ]
+      ]
+    },
+    {
+      "id": "j4-p2",
+      "jornada": 4,
+      "position": 2,
+      "home": "shalom-2",
+      "away": "aguilas-carmesi",
+      "status": "completed",
+      "sets": [
+        [
+          25,
+          20
+        ],
+        [
+          25,
+          15
+        ],
+        [
+          25,
+          22
+        ]
+      ]
+    },
+    {
+      "id": "j4-p3",
+      "jornada": 4,
+      "position": 3,
+      "home": "generacion-de-fe",
+      "away": "little-giant",
+      "status": "completed",
+      "sets": [
+        [
+          25,
+          14
+        ],
+        [
+          19,
+          25
+        ],
+        [
+          25,
+          22
+        ]
+      ]
+    },
+    {
+      "id": "j5-p1",
+      "jornada": 5,
+      "position": 1,
+      "home": "little-giant",
+      "away": "aguilas-carmesi",
+      "status": "completed",
+      "sets": [
+        [
+          24,
+          26
+        ],
+        [
+          25,
+          23
+        ],
+        [
+          21,
+          25
+        ]
+      ]
+    },
+    {
+      "id": "j5-p2",
+      "jornada": 5,
+      "position": 2,
+      "home": "roca-eterna",
+      "away": "shalom-1",
+      "status": "completed",
+      "sets": [
+        [
+          25,
+          18
+        ],
+        [
+          25,
+          21
+        ],
+        [
+          25,
+          16
+        ]
+      ]
+    },
+    {
+      "id": "j5-p3",
+      "jornada": 5,
+      "position": 3,
+      "home": "centinelas-de-luz",
+      "away": "generacion-de-fe",
+      "status": "completed",
+      "sets": [
+        [
+          25,
+          15
+        ],
+        [
+          25,
+          19
+        ],
+        [
+          25,
+          22
+        ]
+      ]
+    },
+    {
+      "id": "j6-p1",
+      "jornada": 6,
+      "position": 1,
+      "home": "shalom-1",
+      "away": "generacion-de-fe",
+      "status": "completed",
+      "sets": [
+        [
+          15,
+          25
+        ],
+        [
+          18,
+          25
+        ],
+        [
+          15,
+          25
+        ]
+      ]
+    },
+    {
+      "id": "j6-p2",
+      "jornada": 6,
+      "position": 2,
+      "home": "aguilas-carmesi",
+      "away": "centinelas-de-luz",
+      "status": "completed",
+      "sets": [
+        [
+          18,
+          25
+        ],
+        [
+          25,
+          22
+        ],
+        [
+          26,
+          24
+        ]
+      ]
+    },
+    {
+      "id": "j6-p3",
+      "jornada": 6,
+      "position": 3,
+      "home": "shalom-2",
+      "away": "roca-eterna",
+      "status": "completed",
+      "sets": [
+        [
+          20,
+          25
+        ],
+        [
+          19,
+          25
+        ],
+        [
+          33,
+          31
+        ]
+      ]
+    },
+    {
+      "id": "j7-p1",
+      "jornada": 7,
+      "position": 1,
+      "home": "roca-eterna",
+      "away": "aguilas-carmesi",
+      "status": "completed",
+      "sets": [
+        [
+          25,
+          22
+        ],
+        [
+          13,
+          25
+        ],
+        [
+          13,
+          25
+        ]
+      ]
+    },
+    {
+      "id": "j7-p2",
+      "jornada": 7,
+      "position": 2,
+      "home": "shalom-2",
+      "away": "generacion-de-fe",
+      "status": "completed",
+      "sets": [
+        [
+          19,
+          25
+        ],
+        [
+          17,
+          25
+        ],
+        [
+          15,
+          25
+        ]
+      ]
+    },
+    {
+      "id": "j7-p3",
+      "jornada": 7,
+      "position": 3,
+      "home": "shalom-1",
+      "away": "little-giant",
+      "status": "completed",
+      "sets": [
+        [
+          14,
+          25
+        ],
+        [
+          15,
+          25
+        ],
+        [
+          16,
+          25
+        ]
+      ]
+    }
+  ]
+}
