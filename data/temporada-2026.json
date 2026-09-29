@@ -2,8 +2,8 @@
   "tournament": {
     "id": "torneo-volleyball-2026",
     "name": "Torneo Volleyball 2026",
-    "format": "Liga todos contra todos, 3 sets fijos por partido",
-    "source": "Volcado de la base de producción del torneo"
+    "format": "Liga todos contra todos, 3 sets fijos por partido; fase final a eliminación",
+    "source": "Temporada congelada de la app del torneo (2026-09-29)"
   },
   "teams": [
     {
@@ -549,5 +549,48 @@
         ]
       ]
     }
-  ]
+  ],
+  "final_phase": {
+    "date": "2026-09-26",
+    "city": "Churube",
+    "score_recorded": false,
+    "matches": [
+      {
+        "id": "ff-p1",
+        "position": 1,
+        "round": "semifinal_1",
+        "round_name": "Semifinal 1",
+        "home": "aguilas-carmesi",
+        "away": "little-giant",
+        "winner": "little-giant"
+      },
+      {
+        "id": "ff-p2",
+        "position": 2,
+        "round": "semifinal_2",
+        "round_name": "Semifinal 2",
+        "home": "centinelas-de-luz",
+        "away": "generacion-de-fe",
+        "winner": "centinelas-de-luz"
+      },
+      {
+        "id": "ff-p3",
+        "position": 3,
+        "round": "third_place",
+        "round_name": "Por el 3.er puesto",
+        "home": "aguilas-carmesi",
+        "away": "generacion-de-fe",
+        "winner": "aguilas-carmesi"
+      },
+      {
+        "id": "ff-p4",
+        "position": 4,
+        "round": "final",
+        "round_name": "Final",
+        "home": "little-giant",
+        "away": "centinelas-de-luz",
+        "winner": "centinelas-de-luz"
+      }
+    ]
+  }
 }

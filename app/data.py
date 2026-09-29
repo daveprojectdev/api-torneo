@@ -8,11 +8,11 @@ la API: si el archivo trae un marcador imposible, el servidor no arranca.
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from functools import cache
 from pathlib import Path
 
-from app.domain import MatchResult
+from app.domain import KnockoutMatch, MatchResult, Podium, compute_standings, podium
 
 SEED = Path(__file__).resolve().parent.parent / "data" / "temporada-2026.json"
 
@@ -44,11 +44,29 @@ class Match:
 
 
 @dataclass(frozen=True)
+class FinalMatch:
+    id: str
+    position: int
+    round_name: str
+    match: KnockoutMatch
+
+
+@dataclass(frozen=True)
+class FinalPhase:
+    date: str
+    city: str
+    score_recorded: bool
+    matches: tuple[FinalMatch, ...]
+    podium: Podium
+
+
+@dataclass(frozen=True)
 class Season:
     tournament: dict
     teams: tuple[Team, ...]
     jornadas: tuple[Jornada, ...]
     matches: tuple[Match, ...]
+    final_phase: FinalPhase | None = None
 
     def team(self, team_id: str) -> Team | None:
         return next((t for t in self.teams if t.id == team_id), None)
@@ -84,7 +102,32 @@ def parse(raw: dict) -> Season:
         if m["status"] == "completed":
             result = MatchResult(m["home"], m["away"], tuple(tuple(s) for s in m["sets"]))
         matches.append(Match(m["id"], m["jornada"], m["position"], m["home"], m["away"], m["status"], result))
-    return Season(raw["tournament"], teams, jornadas, tuple(matches))
+    season = Season(raw["tournament"], teams, jornadas, tuple(matches))
+    if "final_phase" in raw:
+        season = replace(season, final_phase=parse_final(raw["final_phase"], season))
+    return season
+
+
+def parse_final(raw: dict, season: Season) -> FinalPhase:
+    """La fase final se valida contra la liga: sus semifinalistas son los cuatro primeros."""
+    table = compute_standings([t.id for t in season.teams], [m.result for m in season.matches if m.result])
+    top4 = [r.team for r in table[:4]]
+    matches = tuple(
+        FinalMatch(
+            m["id"],
+            m["position"],
+            m["round_name"],
+            KnockoutMatch(m["round"], m["home"], m["away"], m["winner"]),
+        )
+        for m in raw["matches"]
+    )
+    return FinalPhase(
+        date=raw["date"],
+        city=raw["city"],
+        score_recorded=raw["score_recorded"],
+        matches=matches,
+        podium=podium(top4, [f.match for f in matches]),
+    )
 
 
 @cache

@@ -33,9 +33,9 @@ PROBLEMS = {
 }
 
 DESCRIPTION = """
-Datos reales de la liga del **Torneo Volleyball 2026** (7 equipos, 21 partidos,
-63 sets), servidos como API REST de solo lectura, más un endpoint que recalcula
-la tabla con resultados hipotéticos.
+Datos reales del **Torneo Volleyball 2026**: la liga (7 equipos, 21 partidos,
+63 sets) y la fase final con su podio, servidos como API REST de solo lectura,
+más un endpoint que recalcula la tabla con resultados hipotéticos.
 
 - La tabla se calcula en cada petición a partir de los parciales de cada set;
   no hay posiciones guardadas que puedan desincronizarse.
@@ -60,6 +60,7 @@ app = FastAPI(
         {"name": "jornadas", "description": "Fechas de juego y su estado."},
         {"name": "partidos", "description": "Resultados set a set, con filtros y paginación."},
         {"name": "tabla", "description": "Clasificación FIVB con desempates explicados."},
+        {"name": "fase final", "description": "Semifinales, 3.er puesto, final y podio."},
         {"name": "sistema", "description": "Salud del servicio y catálogo de errores."},
     ],
 )
@@ -421,6 +422,49 @@ def simulate_standings(body: schemas.Simulation):
     return schemas.Standings(
         through_jornada=None, matches_counted=len(real) + len(extra), rows=standings_out(season, rows)
     )
+
+
+@v1.get(
+    "/final-phase",
+    summary="Fase final y podio",
+    tags=["fase final"],
+    response_model=schemas.FinalPhase,
+    responses=CACHED,
+)
+def get_final_phase(request: Request):
+    """Semifinales, partido por el 3.er puesto, final y el podio que sale de ellos.
+
+    Al cargar los datos se comprueba que el cuadro cuadre con la liga: los
+    semifinalistas son los cuatro primeros de la tabla, por el 3.er puesto
+    juegan los perdedores de semifinal y la final, los ganadores. No suma a
+    la tabla de la liga.
+    """
+    season = load_season()
+    ff = season.final_phase
+    assert ff is not None
+    out = schemas.FinalPhase(
+        date=ff.date,
+        city=ff.city,
+        score_recorded=ff.score_recorded,
+        matches=[
+            schemas.FinalMatch(
+                id=f.id,
+                round=f.match.round,
+                round_name=f.round_name,
+                home=team_ref(season, f.match.home),
+                away=team_ref(season, f.match.away),
+                winner=team_ref(season, f.match.winner),
+            )
+            for f in ff.matches
+        ],
+        podium=schemas.Podium(
+            champion=team_ref(season, ff.podium.champion),
+            runner_up=team_ref(season, ff.podium.runner_up),
+            third=team_ref(season, ff.podium.third),
+            fourth=team_ref(season, ff.podium.fourth),
+        ),
+    )
+    return cached(request, dump(out))
 
 
 app.include_router(v1)

@@ -1,10 +1,10 @@
 # API del Torneo Volleyball 2026
 
-API REST pública con los datos reales de la liga del [Torneo Volleyball 2026](https://torneo-volleyball-2026.vercel.app):
-7 equipos, 21 partidos y 63 sets. Calcula la tabla de posiciones con puntos FIVB y explica cada desempate.
-También tiene un endpoint para simular resultados hipotéticos.
+API REST pública con los datos reales del [Torneo Volleyball 2026](https://torneo-volleyball-2026.vercel.app):
+la liga (7 equipos, 21 partidos y 63 sets) y la fase final con su podio. Calcula la tabla de posiciones con
+puntos FIVB y explica cada desempate. También tiene un endpoint para simular resultados hipotéticos.
 
-Hecha con **Python 3.14 + FastAPI + Pydantic**. **78 pruebas** y **99 % de cobertura**.
+Hecha con **Python 3.14 + FastAPI + Pydantic**. **90 pruebas** y **99 % de cobertura**.
 
 ## Probarla
 
@@ -33,6 +33,7 @@ curl -X POST https://api.davidameth.dev/v1/standings/simulate \
 | GET | `/v1/matches/{id}` | Un partido (`j3-p2` = jornada 3, posición 2) |
 | GET | `/v1/standings?through_jornada=n` | La tabla actual, o como quedó al cerrar la jornada `n` |
 | POST | `/v1/standings/simulate` | Recalcula la tabla con resultados hipotéticos. No guarda nada |
+| GET | `/v1/final-phase` | Semifinales, 3.er puesto, final y el podio que sale de ellos |
 | GET | `/health` · `/problems/{tipo}` | Salud del servicio y catálogo de errores |
 
 ## Decisiones de diseño
@@ -64,11 +65,11 @@ tests/
 ├── test_api.py                rutas, filtros, paginación, errores y cabeceras HTTP
 ├── test_contrato.py           Schemathesis genera peticiones desde el OpenAPI
 ├── test_datos.py              la carga se niega a arrancar con datos imposibles
-└── test_oraculo_produccion.py la tabla coincide con la de la app en producción
+└── test_oraculo_produccion.py la tabla y el podio coinciden con los de la app en producción
 ```
 
 - **Oráculo de producción.** La app del torneo (TypeScript) y esta API (Python) calculan la tabla por separado
-  con los mismos datos. La prueba exige que coincidan en cada número de cada fila.
+  con los mismos datos. La prueba exige que coincidan en cada número de cada fila, y que el podio sea el mismo.
 - **Pruebas de propiedades.** Hypothesis genera cientos de temporadas al azar y comprueba invariantes que tienen
   que cumplirse siempre. Cada partido reparte exactamente 3 puntos, los sets ganados suman lo mismo que los
   perdidos, la tabla sale ordenada y el orden de los partidos no la cambia.
@@ -101,8 +102,14 @@ uv run pytest --cov=app
 
 ## Los datos
 
-`data/temporada-2026.json` se genera con `scripts/export_seed.py` a partir del volcado diario de la base de
-producción del torneo. Solo exporta equipos, jornadas, partidos y parciales. **No incluye jugadores ni ningún
+`data/temporada-2026.json` se genera con `scripts/export_seed.py` a partir de la temporada congelada de la app
+del torneo (`src/data/archivo-2026.json`), que quedó fija al terminar la temporada. Solo exporta equipos,
+jornadas, partidos, parciales y la fase final.
+
+**La fase final no tiene marcador.** Se jugó sin anotar los puntos, así que de cada partido solo se sabe quién
+ganó. La API lo dice así (`score_recorded: false`) en vez de inventar un resultado. Al arrancar comprueba que el
+cuadro cuadre con la liga: los semifinalistas son los cuatro primeros, por el 3.er puesto juegan los perdedores de
+semifinal y la final, los ganadores. La fase final no suma a la tabla de la liga. **No incluye jugadores ni ningún
 otro dato personal** (Ley 81 de Panamá): la API es pública y esas personas no aceptaron salir en ella.
 
 ## Autor

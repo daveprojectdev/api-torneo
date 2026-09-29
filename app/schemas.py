@@ -95,6 +95,33 @@ class Standings(Schema):
     rows: list[StandingRow]
 
 
+class FinalMatch(Schema):
+    id: str = Field(examples=["ff-p4"], description="`ff-p{posición}`")
+    round: Literal["semifinal_1", "semifinal_2", "third_place", "final"]
+    round_name: str = Field(examples=["Final"])
+    home: TeamRef
+    away: TeamRef
+    winner: TeamRef
+
+
+class Podium(Schema):
+    champion: TeamRef
+    runner_up: TeamRef
+    third: TeamRef
+    fourth: TeamRef
+
+
+class FinalPhase(Schema):
+    date: str = Field(examples=["2026-09-26"])
+    city: str = Field(examples=["Churube"])
+    score_recorded: bool = Field(
+        description="`false`: la fase final se jugó sin anotar los puntos; de cada partido solo se sabe "
+        "quién ganó. Por eso no hay sets ni marcador."
+    )
+    matches: list[FinalMatch]
+    podium: Podium = Field(description="Sale de la final y del partido por el 3.er puesto, no de la tabla.")
+
+
 class SimResult(Schema):
     home: TeamId
     away: TeamId

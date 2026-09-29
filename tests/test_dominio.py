@@ -10,9 +10,12 @@ from hypothesis import strategies as st
 
 from app.domain import (
     InvalidScore,
+    KnockoutMatch,
     MatchResult,
+    Podium,
     compute_standings,
     fivb_points,
+    podium,
     ratio,
     validate_set,
 )
@@ -177,3 +180,51 @@ def test_el_orden_de_los_partidos_no_cambia_la_tabla(results, rnd: random.Random
     first = [(r.team, r.points, r.position) for r in compute_standings(TEAMS, results)]
     second = [(r.team, r.points, r.position) for r in compute_standings(TEAMS, shuffled)]
     assert first == second
+
+
+# ------------------------------------------------------------------ fase final
+
+TOP4 = ["a", "b", "c", "d"]
+
+
+def cuadro(**cambios):
+    base = {
+        "semifinal_1": KnockoutMatch("semifinal_1", "a", "d", "a"),
+        "semifinal_2": KnockoutMatch("semifinal_2", "b", "c", "c"),
+        "third_place": KnockoutMatch("third_place", "d", "b", "b"),
+        "final": KnockoutMatch("final", "a", "c", "c"),
+    }
+    base.update(cambios)
+    return list(base.values())
+
+
+def test_podio_de_un_cuadro_valido():
+    assert podium(TOP4, cuadro()) == Podium(champion="c", runner_up="a", third="b", fourth="d")
+
+
+@pytest.mark.parametrize(
+    "cambio,motivo",
+    [
+        ({"semifinal_1": KnockoutMatch("semifinal_1", "a", "e", "a")}, "cuatro primeros"),
+        ({"semifinal_2": KnockoutMatch("semifinal_2", "a", "c", "c")}, "las dos semifinales"),
+        ({"third_place": KnockoutMatch("third_place", "a", "b", "b")}, "perdedores de semifinal"),
+        ({"final": KnockoutMatch("final", "a", "d", "a")}, "ganadores de semifinal"),
+    ],
+)
+def test_cuadro_imposible(cambio, motivo):
+    with pytest.raises(InvalidScore, match=motivo):
+        podium(TOP4, cuadro(**cambio))
+
+
+def test_falta_un_partido_de_la_fase_final():
+    with pytest.raises(InvalidScore, match="exactamente"):
+        podium(TOP4, cuadro()[:3])
+
+
+def test_el_ganador_tiene_que_haber_jugado():
+    with pytest.raises(InvalidScore, match="no jugó"):
+        KnockoutMatch("final", "a", "b", "c")
+    with pytest.raises(InvalidScore, match="sí mismo"):
+        KnockoutMatch("final", "a", "a", "a")
+    with pytest.raises(InvalidScore, match="ronda desconocida"):
+        KnockoutMatch("cuartos", "a", "b", "a")

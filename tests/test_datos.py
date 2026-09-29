@@ -72,3 +72,12 @@ def test_estado_de_jornada_derivado(estados, esperado):
     assert season.jornada_status(1) == esperado
     pendiente = next((m for m in season.matches if m.status == "pending"), None)
     assert pendiente is None or pendiente.result is None
+
+
+def test_fase_final_incoherente_no_arranca():
+    import json
+
+    raw = json.loads(SEED.read_text(encoding="utf-8"))
+    raw["final_phase"]["matches"][3]["home"] = "shalom-1"  # la final, con quien no ganó su semifinal
+    with pytest.raises(InvalidScore, match="ganadores de semifinal"):
+        parse(raw)

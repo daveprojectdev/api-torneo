@@ -250,3 +250,25 @@ def test_salud_y_raiz():
     r = client.get("/", follow_redirects=False)
     assert r.status_code == 307
     assert r.headers["location"] == "/docs"
+
+
+# ------------------------------------------------------------------ fase final
+
+
+def test_fase_final_sin_marcador_y_con_podio():
+    ff = client.get("/v1/final-phase").json()
+    assert (ff["date"], ff["city"], ff["score_recorded"]) == ("2026-09-26", "Churube", False)
+    assert [m["round"] for m in ff["matches"]] == ["semifinal_1", "semifinal_2", "third_place", "final"]
+    final = ff["matches"][3]
+    assert ff["podium"]["champion"] == final["winner"]
+    assert "sets" not in final  # se jugó sin anotar: no se inventa un marcador
+
+
+def test_la_fase_final_no_toca_la_tabla_de_la_liga():
+    tabla = client.get("/v1/standings").json()
+    assert tabla["matches_counted"] == 21
+    assert sum(r["played"] for r in tabla["rows"]) == 42
+    semifinalistas = {
+        t["id"] for m in client.get("/v1/final-phase").json()["matches"][:2] for t in (m["home"], m["away"])
+    }
+    assert semifinalistas == {r["team"]["id"] for r in tabla["rows"][:4]}

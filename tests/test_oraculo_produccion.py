@@ -37,3 +37,17 @@ def test_la_tabla_coincide_con_la_app_en_produccion():
         for r in rows
     ]
     assert obtenida == PRODUCCION
+
+
+# Podio de la portada de la app (archivada), copiado el 2026-09-28.
+PODIO_PRODUCCION = {
+    "champion": "Centinelas de Luz",
+    "runner_up": "Little Giant",
+    "third": "Águilas Carmesí",
+    "fourth": "Generación de Fe",
+}
+
+
+def test_el_podio_coincide_con_la_app_en_produccion():
+    podium = TestClient(app).get("/v1/final-phase").json()["podium"]
+    assert {k: v["name"] for k, v in podium.items()} == PODIO_PRODUCCION

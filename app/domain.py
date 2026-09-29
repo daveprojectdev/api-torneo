@@ -160,3 +160,69 @@ def compute_standings(teams: list[str], results: list[MatchResult]) -> list[Stan
         if same_points:
             row.tiebreak = _explain_tie(row, same_points[0])
     return table
+
+
+# ---------------------------------------------------------------- fase final
+#
+# Cuatro partidos a eliminación entre los cuatro primeros de la liga: dos
+# semifinales, el partido por el 3.er puesto (perdedores de semifinal) y la
+# final (ganadores). Se jugó sin anotar los puntos, así que de cada partido
+# solo se sabe quién ganó. No suma a la tabla de la liga.
+
+FINAL_ROUNDS = ("semifinal_1", "semifinal_2", "third_place", "final")
+
+
+@dataclass(frozen=True)
+class KnockoutMatch:
+    round: str
+    home: str
+    away: str
+    winner: str
+
+    def __post_init__(self) -> None:
+        if self.round not in FINAL_ROUNDS:
+            raise InvalidScore(f"ronda desconocida: '{self.round}'")
+        if self.home == self.away:
+            raise InvalidScore("un equipo no puede jugar contra sí mismo")
+        if self.winner not in (self.home, self.away):
+            raise InvalidScore(f"{self.round}: '{self.winner}' no jugó ese partido")
+
+    @property
+    def teams(self) -> set[str]:
+        return {self.home, self.away}
+
+    @property
+    def loser(self) -> str:
+        return self.away if self.winner == self.home else self.home
+
+
+@dataclass(frozen=True)
+class Podium:
+    champion: str
+    runner_up: str
+    third: str
+    fourth: str
+
+
+def podium(league_top4: list[str], matches: list[KnockoutMatch]) -> Podium:
+    """Valida que el cuadro sea coherente y devuelve el podio.
+
+    Un cuadro imposible (un semifinalista que no quedó entre los cuatro
+    primeros, una final entre quienes no ganaron su semifinal) se rechaza en
+    vez de publicar un podio que no cuadra con la liga.
+    """
+    by_round = {m.round: m for m in matches}
+    if sorted(by_round) != sorted(FINAL_ROUNDS) or len(matches) != len(FINAL_ROUNDS):
+        raise InvalidScore("la fase final necesita exactamente dos semifinales, el 3.er puesto y la final")
+    sf1, sf2 = by_round["semifinal_1"], by_round["semifinal_2"]
+    third, final = by_round["third_place"], by_round["final"]
+
+    if sf1.teams & sf2.teams:
+        raise InvalidScore("un equipo no puede jugar las dos semifinales")
+    if sf1.teams | sf2.teams != set(league_top4):
+        raise InvalidScore("los semifinalistas tienen que ser los cuatro primeros de la liga")
+    if third.teams != {sf1.loser, sf2.loser}:
+        raise InvalidScore("por el 3.er puesto juegan los perdedores de semifinal")
+    if final.teams != {sf1.winner, sf2.winner}:
+        raise InvalidScore("la final la juegan los ganadores de semifinal")
+    return Podium(champion=final.winner, runner_up=final.loser, third=third.winner, fourth=third.loser)
