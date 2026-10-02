@@ -8,6 +8,10 @@ on:
 jobs:
   pruebas:
     runs-on: ubuntu-latest
+    env:
+      # Token de grano fino con escritura SOLO sobre daveprojectdev/qa. Sin él,
+      # el paso de publicar se salta.
+      QA_TOKEN: ${{ secrets.QA_TOKEN }}
     strategy:
       matrix:
         # 3.12 es la que usa Vercel en producción; 3.14, la del desarrollo local.
@@ -23,10 +27,25 @@ jobs:
           uv run ruff check .
           uv run ruff format --check .
       - name: Pruebas (unitarias, propiedades, API, contrato y oráculo)
-        run: uv run pytest --cov=app --cov-report=term --cov-report=html:reporte/cobertura --junitxml=reporte/junit.xml
+        run: uv run pytest --cov=app --cov-report=term --cov-report=html:reporte/cobertura --cov-report=json:reporte/cobertura.json --junitxml=reporte/junit.xml
       - name: Informe
         if: always()
         uses: actions/upload-artifact@v7
         with:
           name: informe-de-pruebas-py${{ matrix.python }}
           path: reporte/
+      # qa.davidameth.dev: una corrida por push a main, con la Python de
+      # producción (3.12). Si la suite no llegó a correr (falló el estilo), no
+      # hay JUnit y no se publica nada.
+      - name: Publicar en qa.davidameth.dev
+        if: ${{ !cancelled() && env.QA_TOKEN != '' && github.event_name == 'push' && matrix.python == '3.12' }}
+        env:
+          GH_TOKEN: ${{ secrets.QA_TOKEN }}
+        run: |
+          test -f reporte/junit.xml || { echo "Sin junit.xml: las pruebas no llegaron a correr."; exit 0; }
+          uv run python scripts/resumen_qa.py reporte/junit.xml reporte/cobertura.json > resumen.json
+          cat resumen.json
+          nombre="$(date -u +%Y%m%dT%H%M%SZ)-${{ github.run_id }}-${{ github.run_attempt }}.json"
+          gh api -X PUT "repos/daveprojectdev/qa/contents/data/corridas/api-torneo/$nombre" \
+            -f message="api-torneo: $(jq -r .resultado resumen.json) (${{ github.run_id }})" \
+            -f content="$(base64 -w0 resumen.json)" --silent
