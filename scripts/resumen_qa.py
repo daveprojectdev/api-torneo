@@ -25,12 +25,30 @@ def main() -> None:
     omitidas = sum(int(g.get("skipped", 0)) for g in grupos)
     duracion = sum(float(g.get("time", 0)) for g in grupos)
 
-    fallos = [
-        f"{caso.get('classname')}::{caso.get('name')}"
-        for g in grupos
-        for caso in g.iter("testcase")
-        if caso.find("failure") is not None or caso.find("error") is not None
-    ]
+    fallos = []
+    pruebas = []
+    for g in grupos:
+        for caso in g.iter("testcase"):
+            fallo = caso.find("failure")
+            if fallo is None:
+                fallo = caso.find("error")
+            if fallo is not None:
+                fallos.append(f"{caso.get('classname')}::{caso.get('name')}")
+            mensaje = (fallo.get("message") or "").strip().splitlines() if fallo is not None else []
+            pruebas.append(
+                {
+                    "archivo": caso.get("classname", "").replace(".", "/") + ".py",
+                    "titulo": caso.get("name"),
+                    "proyecto": None,
+                    "estado": "falla"
+                    if fallo is not None
+                    else "omitida"
+                    if caso.find("skipped") is not None
+                    else "pasa",
+                    "ms": round(float(caso.get("time", 0)) * 1000),
+                    "error": mensaje[0][:300] if mensaje else None,
+                }
+            )
 
     porcentaje = None
     if cobertura.exists():
@@ -52,6 +70,8 @@ def main() -> None:
         "commit": os.environ.get("GITHUB_SHA", "")[:7] or None,
         "corrida": f"{servidor}/{repo}/actions/runs/{corrida}" if repo and corrida else None,
         "fallos": fallos[:25],
+        "detalle": True,
+        "pruebas": pruebas,
     }
     json.dump(resumen, sys.stdout, ensure_ascii=False, indent=2)
     sys.stdout.write("\n")
