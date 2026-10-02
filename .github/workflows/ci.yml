@@ -38,6 +38,9 @@ jobs:
       # producción (3.12). Si la suite no llegó a correr (falló el estilo), no
       # hay JUnit y no se publica nada.
       - name: Publicar en qa.davidameth.dev
+        # Un fallo al publicar (token vencido, GitHub caído) no dice nada de
+        # las pruebas: se ve en el log, pero la corrida no se pone en rojo.
+        continue-on-error: true
         if: ${{ !cancelled() && env.QA_TOKEN != '' && github.event_name == 'push' && matrix.python == '3.12' }}
         env:
           GH_TOKEN: ${{ secrets.QA_TOKEN }}
