@@ -1,6 +1,6 @@
 # API del Torneo Volleyball 2026
 
-API REST pública con los datos reales del [Torneo Volleyball 2026](https://torneo-volleyball-2026.vercel.app):
+API REST pública con los datos reales del [Torneo Volleyball 2026](https://torneo.davidameth.dev):
 la liga (7 equipos, 21 partidos y 63 sets) y la fase final con su podio. Calcula la tabla de posiciones con
 puntos FIVB y explica cada desempate. También tiene un endpoint para simular resultados hipotéticos.
 
