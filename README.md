@@ -4,7 +4,7 @@ API REST pública con los datos reales del [Torneo Volleyball 2026](https://torn
 la liga (7 equipos, 21 partidos y 63 sets) y la fase final con su podio. Calcula la tabla de posiciones con
 puntos FIVB y explica cada desempate. También tiene un endpoint para simular resultados hipotéticos.
 
-Hecha con **Python 3.14 + FastAPI + Pydantic**. **90 pruebas** y **99 % de cobertura**.
+Hecha con **Python 3.14 + FastAPI + Pydantic**. **100 pruebas** y **99 % de cobertura**.
 
 ## Probarla
 
@@ -50,7 +50,9 @@ curl -X POST https://api.davidameth.dev/v1/standings/simulate \
   `instance` y `request_id`. Cada `type` se documenta en `/problems/{tipo}`.
 - **Validación estricta.** Los campos que no existen se rechazan (`extra="forbid"`) y no hay conversiones
   silenciosas: `0` no se acepta como `false` ni `"25"` como número.
-- **Caché HTTP.** Cada GET lleva `ETag` y `Cache-Control`; con `If-None-Match` la respuesta es `304` sin cuerpo.
+- **Caché HTTP.** Cada GET lleva `ETag` y `Cache-Control: private`; con `If-None-Match` la respuesta es `304` sin
+  cuerpo. `private` y no `public`: la respuesta lleva un `X-Request-ID` por petición, y una caché compartida
+  (el CDN) la repetiría a otros clientes.
 - **Trazabilidad.** Todas las respuestas, también los 500, llevan `X-Request-ID`. Si el cliente manda uno, se
   reutiliza. Un error inesperado no expone detalles internos.
 - **Versionada** bajo `/v1`.
@@ -83,6 +85,12 @@ tests/
 
   Un sexto salió al probar a mano el despliegue: `HEAD` respondía `405` (RFC 9110 obliga a aceptarlo donde se
   acepta `GET`). Schemathesis no lo cubre porque `HEAD` no figura en el OpenAPI. Ahora tiene su prueba.
+
+  Un séptimo apareció en producción el 2026-10-02: las respuestas salían con `Cache-Control: public`, así que el
+  CDN de Vercel las guardaba cinco minutos con todas sus cabeceras y servía **el mismo `X-Request-ID` a todos**,
+  ignorando el que mandara cada cliente. Ninguna prueba lo veía, porque corren contra la aplicación sin el CDN en
+  medio, y la del `X-Request-ID` solo miraba `/health`, la única ruta que no se cachea. Ahora es `private` y hay
+  pruebas sobre todas las rutas cacheables.
 
   Solo en la simulación se desactiva el chequeo de "datos válidos aceptados". JSON Schema no puede expresar
   "a 25 con 2 de ventaja", así que un 0-0 cumple el esquema y aun así debe rechazarse.

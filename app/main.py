@@ -189,10 +189,16 @@ async def request_id(request: Request, call_next):
 
 
 def cached(request: Request, payload) -> Response:
-    """JSON con ETag fuerte. Los datos son una foto fija: el ETag no caduca solo."""
+    """JSON con ETag fuerte. Los datos son una foto fija: el ETag no caduca solo.
+
+    `private`, no `public`: con `public` el CDN de Vercel guardaba la respuesta
+    entera cinco minutos, cabeceras incluidas, y servía el mismo X-Request-ID a
+    todos los clientes, ignorando también el que mandara cada uno. Así la guarda
+    solo el navegador, que es quien hace las peticiones condicionales.
+    """
     body = json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode()
     etag = '"' + hashlib.sha256(body).hexdigest()[:32] + '"'
-    headers = {"ETag": etag, "Cache-Control": "public, max-age=300"}
+    headers = {"ETag": etag, "Cache-Control": "private, max-age=300"}
     matches = [t.strip() for t in request.headers.get("if-none-match", "").split(",")]
     if etag in matches or "*" in matches:
         return Response(status_code=304, headers=headers)

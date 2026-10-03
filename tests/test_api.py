@@ -217,7 +217,8 @@ def test_error_inesperado_no_filtra_detalles():
 def test_etag_y_304():
     r = client.get("/v1/standings")
     etag = r.headers["etag"]
-    assert r.headers["cache-control"] == "public, max-age=300"
+    # `private`: un CDN no puede guardarla (ver test_ninguna_respuesta_con_id_es_publica).
+    assert r.headers["cache-control"] == "private, max-age=300"
     again = client.get("/v1/standings", headers={"If-None-Match": etag})
     assert again.status_code == 304
     assert again.content == b""
@@ -238,6 +239,27 @@ def test_request_id_propio_o_generado():
     assert len(generado) == 32
     # Uno absurdamente largo no se refleja: se genera otro.
     assert client.get("/health", headers={"X-Request-ID": "x" * 500}).headers["x-request-id"] != "x" * 500
+
+
+# Antes esta prueba solo miraba /health, la única ruta que no se cachea, y por
+# eso no vio el defecto de producción del 2026-10-02: con `public`, el CDN de
+# Vercel servía el mismo X-Request-ID a todos durante cinco minutos.
+GET_CACHEABLES = ["/v1/teams", "/v1/jornadas", "/v1/matches", "/v1/standings", "/v1/final-phase"]
+
+
+@pytest.mark.parametrize("ruta", GET_CACHEABLES)
+def test_las_rutas_cacheables_tambien_respetan_el_request_id(ruta):
+    r = client.get(ruta, headers={"X-Request-ID": "propio-456"})
+    assert r.headers["x-request-id"] == "propio-456"
+
+
+@pytest.mark.parametrize("ruta", GET_CACHEABLES)
+def test_ninguna_respuesta_con_id_es_publica(ruta):
+    # Una respuesta que lleva un X-Request-ID por petición no puede guardarla
+    # una caché compartida: la repetiría a otros clientes.
+    cache = client.get(ruta).headers["cache-control"]
+    assert "private" in cache
+    assert "public" not in cache and "s-maxage" not in cache
 
 
 def test_cors_abierto_para_leer():
