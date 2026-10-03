@@ -272,6 +272,11 @@ def test_salud_y_raiz():
     r = client.get("/", follow_redirects=False)
     assert r.status_code == 307
     assert r.headers["location"] == "/docs"
+    # Y adonde lleva, se presenta: un buscador lee el HTML antes de que Scalar dibuje nada.
+    docs = client.get("/docs").text
+    assert '<link rel="canonical" href="https://api.davidameth.dev/docs">' in docs
+    descripcion = docs.split('name="description" content="')[1].split('"')[0]
+    assert 50 <= len(descripcion) <= 160
 
 
 # ------------------------------------------------------------------ fase final

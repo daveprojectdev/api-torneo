@@ -538,12 +538,20 @@ def swagger():
     return get_swagger_ui_html(openapi_url="/openapi.json", title=f"{app.title} · Swagger")
 
 
+# Lo que ve un buscador de /docs antes de que Scalar dibuje nada (≤ 160 caracteres).
+DESCRIPCION_DOCS = (
+    "Documentación interactiva de la API pública del Torneo Volleyball 2026: "
+    "partidos set a set, tabla FIVB y podio, con ejemplos para llamar cada ruta."
+)
+
 SCALAR = """<!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>API del Torneo Volleyball 2026</title>
+  <meta name="description" content="DESCRIPCION_DOCS">
+  <link rel="canonical" href="https://api.davidameth.dev/docs">
 </head>
 <body>
   <script id="api-reference" data-url="/openapi.json"></script>
@@ -564,4 +572,4 @@ SCALAR = """<!doctype html>
 @app.get("/docs", include_in_schema=False)
 def docs():
     """Referencia con Scalar: lee el mismo /openapi.json y trae su propio cliente de pruebas."""
-    return HTMLResponse(SCALAR)
+    return HTMLResponse(SCALAR.replace("DESCRIPCION_DOCS", DESCRIPCION_DOCS))
