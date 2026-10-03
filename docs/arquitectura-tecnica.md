@@ -96,7 +96,7 @@ El código se reparte en tres capas que no se mezclan:
 |---|---|---|
 | `app/domain.py` | 228 | Reglas del voleibol en funciones puras. No conoce HTTP ni JSON |
 | `app/data.py` | 135 | Lee el archivo una vez y lo pasa entero por las reglas del dominio |
-| `app/main.py` | 567 | Rutas, errores, cabeceras y el documento OpenAPI |
+| `app/main.py` | 575 | Rutas, errores, cabeceras y el documento OpenAPI |
 | `app/schemas.py` | 191 | Contratos de entrada y salida (Pydantic, modo estricto) |
 
 | Método | Ruta | Qué hace |
@@ -505,7 +505,7 @@ Son 13 commits en seis días. La historia completa está en el repositorio
 | Calidad de código | Ruff 0.16.9, línea de 110 caracteres |
 | Dependencias de producción | 2 (FastAPI y Pydantic) |
 | Datos | 7 equipos · 7 jornadas · 21 partidos · 63 sets · 4 partidos de fase final · 10.350 B |
-| Código | 1.121 líneas en `app/` · 694 líneas de pruebas |
+| Código | 1.129 líneas en `app/` · 699 líneas de pruebas |
 | Pruebas | 100 · 99,44 % de cobertura · umbral del CI 95 % |
 | Defectos encontrados | 7: 5 por pruebas de contrato, 1 a mano, 1 midiendo producción |
 | Rendimiento | 0,22 – 0,36 s hasta el primer byte · 1,96 s en frío |
