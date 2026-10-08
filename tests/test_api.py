@@ -277,6 +277,9 @@ def test_salud_y_raiz():
     assert '<link rel="canonical" href="https://api.davidameth.dev/docs">' in docs
     descripcion = docs.split('name="description" content="')[1].split('"')[0]
     assert 50 <= len(descripcion) <= 160
+    # La vista previa al compartir: imagen absoluta (los chats no resuelven relativas).
+    assert '<meta property="og:image" content="https://' in docs
+    assert client.get("/robots.txt").text.startswith("User-agent: *")
 
 
 # ------------------------------------------------------------------ fase final

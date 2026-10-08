@@ -12,7 +12,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi.openapi.utils import get_openapi
-from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse, RedirectResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app import domain, schemas
@@ -552,6 +552,16 @@ SCALAR = """<!doctype html>
   <title>API del Torneo Volleyball 2026</title>
   <meta name="description" content="DESCRIPCION_DOCS">
   <link rel="canonical" href="https://api.davidameth.dev/docs">
+  <!-- La vista previa al compartir el enlace: la captura de esta misma página
+       que publica el portafolio (npm run shots, api-torneo-docs). -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="API del Torneo Volleyball 2026">
+  <meta property="og:description" content="DESCRIPCION_DOCS">
+  <meta property="og:url" content="https://api.davidameth.dev/docs">
+  <meta property="og:image" content="https://davidameth.dev/projects/api-torneo-docs.png">
+  <meta property="og:image:width" content="1440">
+  <meta property="og:image:height" content="600">
+  <meta name="twitter:card" content="summary_large_image">
 </head>
 <body>
   <script id="api-reference" data-url="/openapi.json"></script>
@@ -573,3 +583,9 @@ SCALAR = """<!doctype html>
 def docs():
     """Referencia con Scalar: lee el mismo /openapi.json y trae su propio cliente de pruebas."""
     return HTMLResponse(SCALAR.replace("DESCRIPCION_DOCS", DESCRIPCION_DOCS))
+
+
+@app.get("/robots.txt", include_in_schema=False)
+def robots():
+    """Rastreo permitido: la API es pública y /docs es lo que debe encontrarse."""
+    return PlainTextResponse("User-agent: *\nAllow: /\n")
