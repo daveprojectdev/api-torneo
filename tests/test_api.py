@@ -1,5 +1,7 @@
 """La API por HTTP: rutas, filtros, errores y cabeceras."""
 
+import json
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -279,7 +281,18 @@ def test_salud_y_raiz():
     assert 50 <= len(descripcion) <= 160
     # La vista previa al compartir: imagen absoluta (los chats no resuelven relativas).
     assert '<meta property="og:image" content="https://' in docs
-    assert client.get("/robots.txt").text.startswith("User-agent: *")
+    # Para buscadores y asistentes: datos estructurados válidos, sitemap anunciado en robots y llms.txt.
+    ld = json.loads(docs.split('<script type="application/ld+json">')[1].split("</script>")[0])
+    assert {n["@type"] for n in ld["@graph"]} == {"WebPage", "WebAPI", "SportsEvent", "Person"}
+    robots = client.get("/robots.txt").text
+    assert robots.startswith("User-agent: *")
+    assert "Sitemap: https://api.davidameth.dev/sitemap.xml" in robots
+    sitemap = client.get("/sitemap.xml")
+    assert sitemap.headers["content-type"] == "application/xml"
+    assert "<loc>https://api.davidameth.dev/docs</loc>" in sitemap.text
+    llms = client.get("/llms.txt").text
+    assert llms.startswith("# API del Torneo Volleyball 2026")
+    assert "`POST /v1/standings/simulate`" in llms
 
 
 # ------------------------------------------------------------------ fase final

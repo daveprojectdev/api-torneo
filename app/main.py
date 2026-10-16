@@ -562,6 +562,7 @@ SCALAR = """<!doctype html>
   <meta property="og:image:width" content="1440">
   <meta property="og:image:height" content="600">
   <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">DATOS_ESTRUCTURADOS</script>
 </head>
 <body>
   <script id="api-reference" data-url="/openapi.json"></script>
@@ -579,13 +580,106 @@ SCALAR = """<!doctype html>
 </html>"""
 
 
+DOMINIO = "https://api.davidameth.dev"
+# Los mismos @id que usan davidameth.dev y torneo.davidameth.dev: para un
+# buscador, la persona y el torneo de los tres sitios son los mismos.
+ID_PERSONA = "https://davidameth.dev/#persona"
+ID_TORNEO = "https://torneo.davidameth.dev/#torneo"
+
+
+def datos_estructurados() -> str:
+    """JSON-LD de /docs: la página, la API que documenta, su autor y de qué torneo son los datos."""
+    grafo = {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "WebPage",
+                "@id": f"{DOMINIO}/docs#pagina",
+                "url": f"{DOMINIO}/docs",
+                "name": app.title,
+                "description": DESCRIPCION_DOCS,
+                "inLanguage": "es",
+                "about": {"@id": f"{DOMINIO}/#api"},
+            },
+            {
+                "@type": "WebAPI",
+                "@id": f"{DOMINIO}/#api",
+                "name": app.title,
+                "description": DESCRIPCION_DOCS,
+                "url": DOMINIO,
+                "documentation": f"{DOMINIO}/openapi.json",
+                "version": VERSION,
+                "license": "https://opensource.org/licenses/MIT",
+                "inLanguage": "es",
+                "provider": {"@id": ID_PERSONA},
+                "about": {"@id": ID_TORNEO},
+            },
+            {
+                "@type": "SportsEvent",
+                "@id": ID_TORNEO,
+                "name": "Torneo Volleyball 2026",
+                "url": "https://torneo.davidameth.dev/",
+            },
+            {
+                "@type": "Person",
+                "@id": ID_PERSONA,
+                "name": "David Ameth Martínez Sánchez",
+                "url": "https://davidameth.dev/",
+            },
+        ],
+    }
+    # `<` escapado: un texto con «</script>» no puede cerrar la etiqueta antes de tiempo.
+    return json.dumps(grafo, ensure_ascii=False).replace("<", "\\u003c")
+
+
 @app.get("/docs", include_in_schema=False)
 def docs():
     """Referencia con Scalar: lee el mismo /openapi.json y trae su propio cliente de pruebas."""
-    return HTMLResponse(SCALAR.replace("DESCRIPCION_DOCS", DESCRIPCION_DOCS))
+    html = SCALAR.replace("DESCRIPCION_DOCS", DESCRIPCION_DOCS)
+    return HTMLResponse(html.replace("DATOS_ESTRUCTURADOS", datos_estructurados()))
 
 
 @app.get("/robots.txt", include_in_schema=False)
 def robots():
     """Rastreo permitido: la API es pública y /docs es lo que debe encontrarse."""
-    return PlainTextResponse("User-agent: *\nAllow: /\n")
+    return PlainTextResponse(f"User-agent: *\nAllow: /\n\nSitemap: {DOMINIO}/sitemap.xml\n")
+
+
+@app.get("/sitemap.xml", include_in_schema=False)
+def sitemap():
+    """La única página para personas es /docs; lo demás son datos."""
+    xml = (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        f"  <url><loc>{DOMINIO}/docs</loc></url>\n"
+        "</urlset>\n"
+    )
+    return Response(xml, media_type="application/xml")
+
+
+@app.get("/llms.txt", include_in_schema=False)
+def llms():
+    """Para asistentes de IA (formato de llmstxt.org). Las rutas salen del mismo esquema que /docs."""
+    rutas = "\n".join(
+        f"- `{metodo.upper()} {ruta}`: {op['summary']}."
+        for ruta, ops in app.openapi()["paths"].items()
+        for metodo, op in ops.items()
+    )
+    texto = f"""# {app.title}
+
+> {DESCRIPCION_DOCS}
+{DESCRIPTION}
+Hecha por David Ameth Martínez Sánchez (https://davidameth.dev/), con licencia MIT.
+La web del torneo: https://torneo.davidameth.dev/
+
+## Documentación
+
+- [Referencia interactiva]({DOMINIO}/docs): cada ruta con ejemplos y un cliente para probarla.
+- [Esquema OpenAPI]({DOMINIO}/openapi.json): el contrato completo, en JSON.
+- [Arquitectura técnica](https://davidameth.dev/proyectos/api-torneo/): decisiones, pruebas y deuda declarada.
+
+## Rutas
+
+{rutas}
+"""
+    return PlainTextResponse(texto)
